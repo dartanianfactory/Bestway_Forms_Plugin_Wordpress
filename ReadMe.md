@@ -1,5 +1,7 @@
 # BestwayForms Wordpress 6.0-6.9+ Plugin
 
+Плагин предоставляется без лицензии. Все права остаются за мной.
+
 ## Fullstack Integration: WordPress Plugin + n8n ( Optional ) + AI ( Optional ) + Woocommerce ( Optional )
 
 ## Описание проекта
