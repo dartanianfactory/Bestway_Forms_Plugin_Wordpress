@@ -6,10 +6,16 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
 {
     protected $table_name = 'gdzl_wc_leads';
 
-    public function get_all_wc_leads()
-    {
+    public function get_all_wc_leads($page = 1, $per_page = 50) {
         global $wpdb;
-        return $wpdb->get_results("SELECT * FROM {$this->get_table_name()} ORDER BY created_at DESC");
+        
+        $offset = ($page - 1) * $per_page;
+        
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$this->get_table_name()} ORDER BY created_at DESC LIMIT %d OFFSET %d",
+            $per_page,
+            $offset
+        ));
     }
 
     public function get_orders_count()

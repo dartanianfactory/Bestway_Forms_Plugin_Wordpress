@@ -39,15 +39,20 @@ class BestwayForms_Model_Leads extends BestwayForms_Model {
         return $results ?: [];
     }
     
-    public function get_all_leads() {
+    public function get_all_leads($page = 1, $per_page = 50) {
         global $wpdb;
         
-        $leads = $wpdb->get_results("SELECT * FROM {$this->get_table_name()} ORDER BY created_at DESC");
+        $offset = ($page - 1) * $per_page;
         
-        // Добавляем лиды из WooCommerce если интеграция включена
+        $leads = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$this->get_table_name()} ORDER BY created_at DESC LIMIT %d OFFSET %d",
+            $per_page,
+            $offset
+        ));
+
         if (class_exists('BestwayForms_Model_WooCommerce') && get_option('bestway_forms_wc_enabled')) {
             $wc_model = new BestwayForms_Model_WooCommerce();
-            $wc_leads = $wc_model->get_all_wc_leads();
+            $wc_leads = $wc_model->get_all_wc_leads($page, $per_page);
             
             foreach ($wc_leads as $wc_lead) {
                 $lead = new stdClass();
@@ -65,21 +70,36 @@ class BestwayForms_Model_Leads extends BestwayForms_Model {
                 $leads[] = $lead;
             }
             
-            // Сортируем по дате
             usort($leads, function($a, $b) {
                 return strtotime($b->created_at) - strtotime($a->created_at);
             });
+
+            $leads = array_slice($leads, $offset, $per_page);
         }
         
         return $leads;
     }
     
-    public function get_processing_history() {
-        $leads = $this->get_all_leads();
+    public function get_total_leads_count() {
+        global $wpdb;
+        
+        $count = $wpdb->get_var("SELECT COUNT(*) FROM {$this->get_table_name()}");
+        
+        if (class_exists('BestwayForms_Model_WooCommerce') && get_option('bestway_forms_wc_enabled')) {
+            $wc_model = new BestwayForms_Model_WooCommerce();
+            $wc_count = $wc_model->get_orders_count();
+            $count += $wc_count;
+        }
+        
+        return $count;
+    }
+    
+    public function get_processing_history($page = 1, $per_page = 50) {
+        $leads = $this->get_all_leads($page, $per_page);
         
         if (class_exists('BestwayForms_Model_WooCommerce')) {
             $wc_model = new BestwayForms_Model_WooCommerce();
-            $wc_leads = $wc_model->get_all_wc_leads();
+            $wc_leads = $wc_model->get_all_wc_leads($page, $per_page);
             
             foreach ($wc_leads as $wc_lead) {
                 $wc_lead->source = 'woocommerce';
@@ -95,6 +115,10 @@ class BestwayForms_Model_Leads extends BestwayForms_Model {
         });
         
         return $all_items;
+    }
+    
+    public function get_total_history_count() {
+        return $this->get_total_leads_count();
     }
     
     public function process_lead($form_data) {

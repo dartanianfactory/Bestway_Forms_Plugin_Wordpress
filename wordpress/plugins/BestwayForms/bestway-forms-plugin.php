@@ -12,7 +12,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('BESTWAY_FORMS_VERSION', '2.3');
+define('BESTWAY_FORMS_VERSION', '2.4');
 define('BESTWAY_FORMS_PATH', plugin_dir_path(__FILE__));
 define('BESTWAY_FORMS_URL', plugin_dir_url(__FILE__));
 

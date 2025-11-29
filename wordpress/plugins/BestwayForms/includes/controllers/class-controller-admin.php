@@ -186,16 +186,28 @@ class BestwayForms_Controller_Admin {
     
     public function leads_page() {
         $leads_model = new BestwayForms_Model_Leads();
-        $leads = $leads_model->get_all_leads();
         
-        BestwayForms_Admin_Leads_Render::render($leads);
+        $current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+        $per_page = 50;
+        
+        $leads = $leads_model->get_all_leads($current_page, $per_page);
+        $total_leads = $leads_model->get_total_leads_count();
+        $total_pages = ceil($total_leads / $per_page);
+        
+        BestwayForms_Admin_Leads_Render::render($leads, $current_page, $total_pages, $total_leads);
     }
-    
+
     public function history_page() {
         $leads_model = new BestwayForms_Model_Leads();
-        $history = $leads_model->get_processing_history();
         
-        BestwayForms_Admin_History_Render::render($history);
+        $current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+        $per_page = 50;
+        
+        $history = $leads_model->get_processing_history($current_page, $per_page);
+        $total_history = $leads_model->get_total_history_count();
+        $total_pages = ceil($total_history / $per_page);
+        
+        BestwayForms_Admin_History_Render::render($history, $current_page, $total_pages, $total_history);
     }
     
     public function settings_page() {

@@ -3,15 +3,14 @@ if (!defined('ABSPATH')) exit;
 
 class BestwayForms_Admin_Leads_Render {
     
-    public static function render($leads) {
+    public static function render($leads, $current_page = 1, $total_pages = 1, $total_items = 0) {
         $forms_model = new BestwayForms_Model_Forms();
-        $total_leads = count($leads);
+        $per_page = 50;
         
-        // Создаем nonce для экспорта
         $export_nonce = wp_create_nonce('export_leads');
         ?>
         <div class="wrap">
-            <h1>Лиды (<?php echo $total_leads; ?>)</h1>
+            <h1>Лиды (<?php echo $total_items; ?>)</h1>
             
             <div class="tablenav top">
                 <div class="alignleft actions">
@@ -31,12 +30,30 @@ class BestwayForms_Admin_Leads_Render {
                         </a>
                     </div>
                 </div>
+                
+                <div class="tablenav-pages">
+                    <span class="displaying-num"><?php echo $total_items; ?> записей</span>
+                    <?php if ($total_pages > 1): ?>
+                        <span class="pagination-links">
+                            <?php
+                            echo paginate_links(array(
+                                'base' => add_query_arg('paged', '%#%'),
+                                'format' => '',
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
+                                'total' => $total_pages,
+                                'current' => $current_page
+                            ));
+                            ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
                 <br class="clear">
             </div>
             
-            <?php if ($total_leads > 1000): ?>
+            <?php if ($total_items > 1000): ?>
                 <div class="notice notice-info">
-                    <p>Для удобства работы с большим количеством лидов используйте экспорт. Всего лидов: <?php echo $total_leads; ?></p>
+                    <p>Для удобства работы с большим количеством лидов используйте экспорт. Всего лидов: <?php echo $total_items; ?></p>
                 </div>
             <?php endif; ?>
             
@@ -188,6 +205,26 @@ class BestwayForms_Admin_Leads_Render {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                
+                <?php if ($total_pages > 1): ?>
+                    <div class="tablenav bottom">
+                        <div class="tablenav-pages">
+                            <span class="displaying-num"><?php echo $total_items; ?> записей</span>
+                            <span class="pagination-links">
+                                <?php
+                                echo paginate_links(array(
+                                    'base' => add_query_arg('paged', '%#%'),
+                                    'format' => '',
+                                    'prev_text' => '&laquo;',
+                                    'next_text' => '&raquo;',
+                                    'total' => $total_pages,
+                                    'current' => $current_page
+                                ));
+                                ?>
+                            </span>
+                        </div>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
         
@@ -203,12 +240,10 @@ class BestwayForms_Admin_Leads_Render {
         
         <script>
         jQuery(document).ready(function($) {
-            // Обработчики для кнопок экспорта
             $('.export-buttons a').on('click', function(e) {
                 e.preventDefault();
                 var url = $(this).attr('href');
                 
-                // Создаем скрытый iframe для скачивания файла
                 var iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
                 iframe.src = url;
@@ -356,8 +391,36 @@ class BestwayForms_Admin_Leads_Render {
             text-transform: uppercase;
         }
         
+        .status-new {
+            background: #e7f3ff;
+            color: #0073aa;
+        }
+        
+        .status-processed {
+            background: #f0f7f0;
+            color: #28a745;
+        }
+        
+        .status-qualified {
+            background: #fff8e5;
+            color: #ffc107;
+        }
+        
+        .status-rejected {
+            background: #fdf2f2;
+            color: #dc3545;
+        }
+        
         .export-buttons {
             margin-bottom: 10px;
+        }
+        
+        .tablenav-pages {
+            float: right;
+        }
+        
+        .pagination-links {
+            margin-left: 10px;
         }
         </style>
         <?php

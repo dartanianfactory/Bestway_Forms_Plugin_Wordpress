@@ -3,10 +3,32 @@ if (!defined('ABSPATH')) exit;
 
 class BestwayForms_Admin_History_Render {
     
-    public static function render($history) {
+    public static function render($history, $current_page = 1, $total_pages = 1, $total_items = 0) {
+        $per_page = 50;
         ?>
         <div class="wrap">
-            <h1>История обработки</h1>
+            <h1>История обработки (<?php echo $total_items; ?>)</h1>
+            
+            <div class="tablenav top">
+                <div class="tablenav-pages">
+                    <span class="displaying-num"><?php echo $total_items; ?> записей</span>
+                    <?php if ($total_pages > 1): ?>
+                        <span class="pagination-links">
+                            <?php
+                            echo paginate_links(array(
+                                'base' => add_query_arg('paged', '%#%'),
+                                'format' => '',
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
+                                'total' => $total_pages,
+                                'current' => $current_page
+                            ));
+                            ?>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <br class="clear">
+            </div>
             
             <table class="wp-list-table widefat fixed striped">
                 <thead>
@@ -23,8 +45,7 @@ class BestwayForms_Admin_History_Render {
                 <tbody>
                     <?php foreach ($history as $item): 
                         $is_wc = (isset($item->source) && $item->source === 'woocommerce') || isset($item->order_id);
-                        
-                        // Подготавливаем данные для отображения
+
                         $raw_data = '';
                         if (isset($item->form_data)) {
                             $raw_data = is_string($item->form_data) ? $item->form_data : wp_json_encode($item->form_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -34,8 +55,7 @@ class BestwayForms_Admin_History_Render {
                         
                         $n8n_data = $item->n8n_response ?? '';
                         $ai_data = $item->ai_processed_data ?? '';
-                        
-                        // Преобразуем данные в читаемый JSON
+
                         if ($n8n_data && !is_string($n8n_data)) {
                             $n8n_data = wp_json_encode($n8n_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                         }
@@ -100,6 +120,26 @@ class BestwayForms_Admin_History_Render {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            
+            <?php if ($total_pages > 1): ?>
+                <div class="tablenav bottom">
+                    <div class="tablenav-pages">
+                        <span class="displaying-num"><?php echo $total_items; ?> записей</span>
+                        <span class="pagination-links">
+                            <?php
+                            echo paginate_links(array(
+                                'base' => add_query_arg('paged', '%#%'),
+                                'format' => '',
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
+                                'total' => $total_pages,
+                                'current' => $current_page
+                            ));
+                            ?>
+                        </span>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
         
         <div id="raw-modal" style="display: none;">
@@ -117,10 +157,8 @@ class BestwayForms_Admin_History_Render {
             $('.view-raw').on('click', function() {
                 var content = $(this).data('content');
                 var title = $(this).data('title');
-                
-                // Пытаемся отформатировать JSON если это валидный JSON
+
                 try {
-                    // Если content уже объект, преобразуем его в строку
                     if (typeof content === 'object') {
                         var formattedContent = JSON.stringify(content, null, 2);
                     } else {
@@ -145,8 +183,7 @@ class BestwayForms_Admin_History_Render {
                     $(this).hide();
                 }
             });
-            
-            // Добавляем кнопку копирования в модальное окно
+
             $(document).on('click', '#raw-modal-content', function() {
                 var content = $(this).text();
                 var $temp = $('<textarea>');
@@ -154,8 +191,7 @@ class BestwayForms_Admin_History_Render {
                 $temp.val(content).select();
                 document.execCommand('copy');
                 $temp.remove();
-                
-                // Показываем уведомление о копировании
+
                 var $notice = $('<div class="notice notice-success is-dismissible" style="margin: 10px 0; padding: 5px 10px;"><p>Текст скопирован в буфер обмена</p></div>');
                 $('#raw-modal .modal-content').prepend($notice);
                 setTimeout(function() {
@@ -202,6 +238,14 @@ class BestwayForms_Admin_History_Render {
         .modal-actions {
             margin-top: 20px;
             text-align: right;
+        }
+        
+        .tablenav-pages {
+            float: right;
+        }
+        
+        .pagination-links {
+            margin-left: 10px;
         }
         </style>
         <?php
