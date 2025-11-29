@@ -1,0 +1,248 @@
+{
+  "name": "Duplicate Lead Handling",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "wordpress-lead-v2",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-v2",
+      "name": "WordPress Webhook v2",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://mock-api:3000/api/leads",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "get-existing",
+      "name": "Get Existing Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const newLead = $json;\nconst existingLeads = $input.all()[0].json;\n\nconst duplicate = existingLeads.find(lead => \n  lead.email.toLowerCase() === newLead.email.toLowerCase() ||\n  lead.phone.replace(/[^\\d+]/g, '') === newLead.phone.replace(/[^\\d+]/g, '')\n);\n\nreturn {\n  newLead: newLead,\n  isDuplicate: !!duplicate,\n  duplicateLead: duplicate\n};"
+      },
+      "id": "check-duplicates",
+      "name": "Check for Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.isDuplicate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "duplicate-check",
+      "name": "Duplicate Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "http://mock-api:3000/api/leads/{{ $json.duplicateLead.id }}",
+        "authentication": "none",
+        "jsonBody": true,
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "notes",
+              "value": "Duplicate submission from {{ $json.newLead.source }} on {{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-existing",
+      "name": "Update Existing Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mock-api:3000/api/leads",
+        "authentication": "none",
+        "jsonBody": true,
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.newLead.name }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.newLead.email }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json.newLead.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.newLead.message }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.newLead.source }}"
+            }
+          ]
+        }
+      },
+      "id": "create-new",
+      "name": "Create New Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 500]
+    },
+    {
+      "parameters": {
+        "statusCode": 200
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "statusCode": 409
+      },
+      "id": "duplicate-response",
+      "name": "Duplicate Response",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [1340, 500]
+    }
+  ],
+  "connections": {
+    "WordPress Webhook v2": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Leads": {
+      "main": [
+        [
+          {
+            "node": "Check for Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Check": {
+      "main": [
+        [
+          {
+            "node": "Update Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "outputs": {
+        "false": [
+          [
+            {
+              "node": "Create New Lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "Update Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Lead": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "versionId": "1"
+}
