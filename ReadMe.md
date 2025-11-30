@@ -48,9 +48,9 @@ docker-compose up -d --build
 
 ## WordPress
 
-URL: http://localhost:8000
+URL: http://localhost:8080
 
-Админка: http://localhost:8000/wp-admin
+Админка: http://localhost:8080/wp-admin
 
 Логин: admin / password
 
