@@ -64,6 +64,6 @@ URL: http://localhost:5678 Зайти и импортировать workflows (!
 
 n8n Webhook эндпоинты:
 
-POST /webhook/wordpress-lead
+POST /webhook/simple-lead
 - Принимает данные из WordPress при создании новой заявки
-- Формат JSON: {name, email, phone, message, wordpress_id, source, timestamp}
+- Возвращает тестово обогащенный json

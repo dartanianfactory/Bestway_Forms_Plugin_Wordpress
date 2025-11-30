@@ -1,0 +1,120 @@
+{
+  "name": "Simplified Lead Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "simple-lead",
+        "responseMode": "responseNode",
+        "httpMethod": "POST"
+      },
+      "id": "webhook-node",
+      "name": "Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const processedData = {\n  ...$json,\n  n8n_processed: true,\n  n8n_timestamp: new Date().toISOString(),\n  source: 'website'\n};\n\nreturn processedData;"
+      },
+      "id": "add-n8n-marker",
+      "name": "Add N8N Marker",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://mock-api:3000/api/leads",
+        "authentication": "none",
+        "jsonBody": true,
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "name": "email", 
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "n8n_processed",
+              "value": "={{ $json.n8n_processed }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.source }}"
+            }
+          ]
+        }
+      },
+      "id": "save-to-crm",
+      "name": "Save to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "statusCode": 200
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Add N8N Marker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add N8N Marker": {
+      "main": [
+        [
+          {
+            "node": "Save to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to CRM": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "versionId": "1"
+}
