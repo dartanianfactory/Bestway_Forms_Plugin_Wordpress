@@ -142,7 +142,7 @@ class BestwayForms_Admin_Create_Form_Render {
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        window.location.href = '<?php echo admin_url('admin.php?page=gadzila-forms-list'); ?>';
+                                        window.location.href = '<?php echo admin_url('admin.php?page=bestway-forms-list'); ?>';
                                     } else {
                                         alert('Ошибка создания формы: ' + response.data);
                                         $btn.prop('disabled', false).text('Создать форму');

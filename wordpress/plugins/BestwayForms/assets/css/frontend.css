@@ -1,4 +1,4 @@
-.gadzila-form-wrapper {
+.bestway-form-wrapper {
     max-width: 600px;
     margin: 20px auto;
     padding: 30px;
@@ -8,18 +8,18 @@
     border: 1px solid #e1e8ed;
 }
 
-.gadzila-form {
+.bestway-form {
     background: transparent;
     padding: 0;
     border: none;
 }
 
-.gadzila-form .form-field {
+.bestway-form .form-field {
     margin-bottom: 25px;
     position: relative;
 }
 
-.gadzila-form label {
+.bestway-form label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
@@ -27,12 +27,12 @@
     font-size: 14px;
 }
 
-.gadzila-form input[type="text"],
-.gadzila-form input[type="email"],
-.gadzila-form input[type="tel"],
-.gadzila-form input[type="checkbox"],
-.gadzila-form select,
-.gadzila-form textarea {
+.bestway-form input[type="text"],
+.bestway-form input[type="email"],
+.bestway-form input[type="tel"],
+.bestway-form input[type="checkbox"],
+.bestway-form select,
+.bestway-form textarea {
     width: 100%;
     padding: 14px 16px;
     border: 2px solid #e9ecef;
@@ -44,12 +44,12 @@
     font-family: inherit;
 }
 
-.gadzila-form input[type="checkbox"] {
+.bestway-form input[type="checkbox"] {
     width: auto;
     margin-right: 10px;
 }
 
-.gadzila-form select {
+.bestway-form select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
     background-repeat: no-repeat;
@@ -58,9 +58,9 @@
     padding-right: 40px;
 }
 
-.gadzila-form input:focus,
-.gadzila-form select:focus,
-.gadzila-form textarea:focus {
+.bestway-form input:focus,
+.bestway-form select:focus,
+.bestway-form textarea:focus {
     outline: none;
     border-color: #3498db;
     background: #ffffff;
@@ -68,13 +68,13 @@
     transform: translateY(-1px);
 }
 
-.gadzila-form textarea {
+.bestway-form textarea {
     resize: vertical;
     min-height: 120px;
     font-family: inherit;
 }
 
-.gadzila-submit-btn {
+.bestway-submit-btn {
     background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
     padding: 16px 40px;
@@ -89,24 +89,24 @@
     letter-spacing: 0.5px;
 }
 
-.gadzila-submit-btn:hover {
+.bestway-submit-btn:hover {
     background: linear-gradient(135deg, #2980b9, #3498db);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
 }
 
-.gadzila-submit-btn:active {
+.bestway-submit-btn:active {
     transform: translateY(0);
 }
 
-.gadzila-submit-btn:disabled {
+.bestway-submit-btn:disabled {
     background: #bdc3c7;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
 
-.gadzila-form-messages {
+.bestway-form-messages {
     margin-top: 25px;
     padding: 20px;
     border-radius: 8px;
@@ -115,13 +115,13 @@
     text-align: center;
 }
 
-.gadzila-form-messages.success {
+.bestway-form-messages.success {
     background: #d4edda;
     color: #155724;
     border: 2px solid #c3e6cb;
 }
 
-.gadzila-form-messages.error {
+.bestway-form-messages.error {
     background: #f8d7da;
     color: #721c24;
     border: 2px solid #f5c6cb;
@@ -151,21 +151,21 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.gadzila-form-auto {
+.bestway-form-auto {
     animation: fadeIn 0.5s ease-in;
 }
 
 @media (max-width: 768px) {
-    .gadzila-form-wrapper {
+    .bestway-form-wrapper {
         margin: 10px;
         padding: 20px;
     }
     
-    .gadzila-form input[type="text"],
-    .gadzila-form input[type="email"],
-    .gadzila-form input[type="tel"],
-    .gadzila-form select,
-    .gadzila-form textarea {
+    .bestway-form input[type="text"],
+    .bestway-form input[type="email"],
+    .bestway-form input[type="tel"],
+    .bestway-form select,
+    .bestway-form textarea {
         padding: 12px 14px;
     }
 }

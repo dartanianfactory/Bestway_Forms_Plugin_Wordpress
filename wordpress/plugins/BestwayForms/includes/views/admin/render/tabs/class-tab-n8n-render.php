@@ -14,6 +14,8 @@ class BestwayForms_Tab_N8N_Render {
             
             <div class="card">
                 <h2>n8n Интеграция</h2>
+
+                <p>n8n должен принимать post и отдавать JSON (!)</p>
             </div>
             
             <div class="card">

@@ -19,6 +19,7 @@ class BestwayForms_Controller_AJAX {
         add_action('wp_ajax_bestway_create_form', [$this, 'ajax_create_form']);
         add_action('wp_ajax_submit_bestway_form', [$this, 'handle_form_submission']);
         add_action('wp_ajax_nopriv_submit_bestway_form', [$this, 'handle_form_submission']);
+        add_action('wp_ajax_bestway_test_smtp', [$this, 'ajax_test_smtp']);
     }
     
     public function ajax_create_form() {
@@ -44,7 +45,7 @@ class BestwayForms_Controller_AJAX {
             wp_send_json_success([
                 'form_id' => $form_data['id'],
                 'message' => 'Форма успешно создана!',
-                'redirect_url' => admin_url('admin.php?page=gadzila-forms-list')
+                'redirect_url' => admin_url('admin.php?page=bestway-forms-list')
             ]);
         } else {
             BestwayForms::log("Ошибка создания формы из шаблона: {$template}", 'error');
@@ -83,6 +84,42 @@ class BestwayForms_Controller_AJAX {
         }
         
         wp_die();
+    }
+
+    public function ajax_test_smtp() {
+        if (!check_ajax_referer('bestway_forms_nonce', 'nonce', false)) {
+            wp_send_json_error('Security check failed');
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Неавторизованный доступ');
+        }
+        
+        $recipient_emails = get_option('bestway_forms_smtp_recipient_emails');
+        if (empty($recipient_emails)) {
+            wp_send_json_error('Не указаны email получатели');
+        }
+        
+        $emails = array_map('trim', explode(',', $recipient_emails));
+        $test_email = $emails[0];
+        
+        $subject = 'Тестовое письмо от BestwayForms';
+        $message = 'Это тестовое письмо для проверки настроек SMTP.' . "\n\n";
+        $message .= 'Время отправки: ' . current_time('mysql') . "\n";
+        $message .= 'Сайт: ' . get_bloginfo('name') . ' (' . site_url() . ')';
+        
+        $headers = array(
+            'From: ' . get_option('bestway_forms_smtp_from_name') . ' <' . get_option('bestway_forms_smtp_from_email') . '>',
+            'Content-Type: text/plain; charset=UTF-8'
+        );
+        
+        $result = wp_mail($test_email, $subject, $message, $headers);
+        
+        if ($result) {
+            wp_send_json_success('Тестовое письмо отправлено на ' . $test_email);
+        } else {
+            wp_send_json_error('Не удалось отправить тестовое письмо. Проверьте настройки SMTP.');
+        }
     }
     
     private function validate_form_data($data) {

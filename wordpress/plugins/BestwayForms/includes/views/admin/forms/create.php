@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 <div class="wrap">
     <h1>Create New Form</h1>
     
-    <div class="gadzila-forms-create">
+    <div class="bestway-forms-create">
         <div class="form-templates-grid">
             <?php foreach ($templates as $template_key => $template_name): ?>
                 <div class="template-card">
@@ -82,7 +82,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 console.log('AJAX response:', response);
                 if (response.success) {
-                    window.location.href = '<?php echo admin_url('admin.php?page=gadzila-forms-list'); ?>';
+                    window.location.href = '<?php echo admin_url('admin.php?page=bestway-forms-list'); ?>';
                 } else {
                     alert('Error creating form: ' + response.data);
                     $btn.prop('disabled', false).text('Create Form');

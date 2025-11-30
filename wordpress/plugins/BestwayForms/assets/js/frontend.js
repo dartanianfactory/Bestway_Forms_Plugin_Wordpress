@@ -11,12 +11,12 @@
         }
         
         handleFormSubmit() {
-            $(document).on('submit', '.gadzila-form', (e) => {
+            $(document).on('submit', '.bestway-form', (e) => {
                 e.preventDefault();
                 
                 const $form = $(e.target);
-                const $submitBtn = $form.find('.gadzila-submit-btn');
-                const $messages = $form.closest('.gadzila-form-wrapper').find('.gadzila-form-messages');
+                const $submitBtn = $form.find('.bestway-submit-btn');
+                const $messages = $form.closest('.bestway-form-wrapper').find('.bestway-form-messages');
 
                 $messages.hide().removeClass('success error');
                 $form.find('.error-message').hide();

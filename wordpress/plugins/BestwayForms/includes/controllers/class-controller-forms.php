@@ -22,21 +22,21 @@ class BestwayForms_Controller_Forms {
     
     public function frontend_scripts() {
         wp_enqueue_style(
-            'gadzila-forms-frontend',
+            'bestway-forms-frontend',
             BESTWAY_FORMS_URL . 'assets/css/frontend.css',
             [],
             BESTWAY_FORMS_VERSION
         );
         
         wp_enqueue_script(
-            'gadzila-forms-frontend',
+            'bestway-forms-frontend',
             BESTWAY_FORMS_URL . 'assets/js/frontend.js',
             ['jquery'],
             BESTWAY_FORMS_VERSION,
             true
         );
         
-        wp_localize_script('gadzila-forms-frontend', 'bestway_forms_frontend', [
+        wp_localize_script('bestway-forms-frontend', 'bestway_forms_frontend', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('bestway_forms_submit')
         ]);
@@ -61,8 +61,8 @@ class BestwayForms_Controller_Forms {
         
         ob_start();
 
-        echo '<div class="gadzila-form-wrapper" data-form-id="' . $form_id . '">';
-        echo '<form class="gadzila-form" id="gadzila-form-' . $form_id . '" method="post">';
+        echo '<div class="bestway-form-wrapper" data-form-id="' . $form_id . '">';
+        echo '<form class="bestway-form" id="bestway-form-' . $form_id . '" method="post">';
         echo '<input type="hidden" name="form_id" value="' . $form_id . '">';
         echo '<input type="hidden" name="action" value="submit_bestway_form">';
         echo '<input type="hidden" name="bestway_nonce" value="' . wp_create_nonce('bestway_forms_submit') . '">';
@@ -79,11 +79,11 @@ class BestwayForms_Controller_Forms {
         }
         
         echo '<div class="form-field">';
-        echo '<button type="submit" class="gadzila-submit-btn">Отправить</button>';
+        echo '<button type="submit" class="bestway-submit-btn">Отправить</button>';
         echo '</div>';
         
         echo '</form>';
-        echo '<div class="gadzila-form-messages" style="display: none;"></div>';
+        echo '<div class="bestway-form-messages" style="display: none;"></div>';
         echo '</div>';
         
         return ob_get_clean();

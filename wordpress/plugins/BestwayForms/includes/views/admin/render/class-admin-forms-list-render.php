@@ -16,7 +16,7 @@ class BestwayForms_Admin_Forms_List_Render {
             
             <?php if (empty($forms)): ?>
                 <div class="notice notice-info">
-                    <p>У вас пока нет созданных форм. <a href="<?php echo admin_url('admin.php?page=gadzila-forms-create'); ?>">Создайте первую форму</a>.</p>
+                    <p>У вас пока нет созданных форм. <a href="<?php echo admin_url('admin.php?page=bestway-forms-create'); ?>">Создайте первую форму</a>.</p>
                 </div>
             <?php else: ?>
                 <table class="wp-list-table widefat fixed striped">
@@ -45,10 +45,10 @@ class BestwayForms_Admin_Forms_List_Render {
                                 <td><?php echo esc_html(date('d.m.Y H:i', strtotime($form->created_at))); ?></td>
                                 <td>
                                     <div class="form-actions">
-                                        <a href="<?php echo admin_url('admin.php?page=gadzila-forms-create&edit=' . $form->id); ?>" class="button button-primary">
+                                        <a href="<?php echo admin_url('admin.php?page=bestway-forms-create&edit=' . $form->id); ?>" class="button button-primary">
                                             Редактировать
                                         </a>
-                                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=gadzila-forms-list&action=delete&form_id=' . $form->id), 'delete_form_' . $form->id); ?>" 
+                                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=bestway-forms-list&action=delete&form_id=' . $form->id), 'delete_form_' . $form->id); ?>" 
                                            class="button button-link-delete" 
                                            onclick="return confirm('Вы уверены что хотите удалить эту форму?')">
                                             Удалить

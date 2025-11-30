@@ -69,11 +69,11 @@ class BestwayForms_Model_Leads extends BestwayForms_Model {
                 
                 $leads[] = $lead;
             }
-            
+
             usort($leads, function($a, $b) {
                 return strtotime($b->created_at) - strtotime($a->created_at);
             });
-
+            
             $leads = array_slice($leads, $offset, $per_page);
         }
         
@@ -137,6 +137,8 @@ class BestwayForms_Model_Leads extends BestwayForms_Model {
         
         if ($result) {
             $lead_id = $wpdb->insert_id;
+            
+            do_action('bestway_forms_lead_created', $form_data, false);
             
             $n8n_result = $this->send_to_n8n($lead_id, $form_data);
             $ai_result = $this->process_with_ai($lead_id, $form_data);

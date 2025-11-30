@@ -12,7 +12,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('BESTWAY_FORMS_VERSION', '2.4');
+define('BESTWAY_FORMS_VERSION', '2.4.1');
 define('BESTWAY_FORMS_PATH', plugin_dir_path(__FILE__));
 define('BESTWAY_FORMS_URL', plugin_dir_url(__FILE__));
 
@@ -31,6 +31,7 @@ $plugin_files = [
     // Integrations
     'includes/integrations/class-integration-n8n.php',
     'includes/integrations/class-integration-ai.php',
+    'includes/integrations/class-integration-smtp.php',
     
     // Controllers
     'includes/controllers/class-controller-admin.php',
@@ -46,6 +47,7 @@ $plugin_files = [
     'includes/views/admin/render/tabs/class-tab-general-render.php',
     'includes/views/admin/render/tabs/class-tab-n8n-render.php',
     'includes/views/admin/render/tabs/class-tab-ai-render.php',
+    'includes/views/admin/render/tabs/class-tab-smtp-render.php',
     'includes/views/admin/render/tabs/class-tab-contacts-render.php',
     'includes/views/admin/render/tabs/class-tab-woocommerce-render.php',
     'includes/views/admin/render/class-admin-leads-render.php',
@@ -92,6 +94,10 @@ class BestwayForms {
         
         if (class_exists('BestwayForms_Controller_Exports')) {
             BestwayForms_Controller_Exports::instance();
+        }
+
+        if (class_exists('BestwayForms_Integration_SMTP')) {
+            BestwayForms_Integration_SMTP::instance();
         }
         
         if (class_exists('WooCommerce') && class_exists('BestwayForms_Controller_WooCommerce')) {

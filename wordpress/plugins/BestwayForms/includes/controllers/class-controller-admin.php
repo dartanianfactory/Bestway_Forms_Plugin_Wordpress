@@ -26,63 +26,63 @@ class BestwayForms_Controller_Admin {
             'BestwayForms',
             'BestwayForms',
             'manage_options',
-            'gadzila-forms',
+            'bestway-forms',
             [$this, 'dashboard_page'],
             'dashicons-email-alt',
             30
         );
         
         add_submenu_page(
-            'gadzila-forms',
+            'bestway-forms',
             'Дашборд',
             'Дашборд',
             'manage_options',
-            'gadzila-forms',
+            'bestway-forms',
             [$this, 'dashboard_page']
         );
         
         add_submenu_page(
-            'gadzila-forms',
+            'bestway-forms',
             'Формы',
             'Формы',
             'manage_options',
-            'gadzila-forms-list',
+            'bestway-forms-list',
             [$this, 'forms_list_page']
         );
         
         add_submenu_page(
-            'gadzila-forms',
+            'bestway-forms',
             'Создать форму',
             'Создать форму',
             'manage_options',
-            'gadzila-forms-create',
+            'bestway-forms-create',
             [$this, 'create_form_page']
         );
         
         add_submenu_page(
-            'gadzila-forms',
+            'bestway-forms',
             'Лиды',
             'Лиды',
             'manage_options',
-            'gadzila-forms-leads',
+            'bestway-forms-leads',
             [$this, 'leads_page']
         );
         
         add_submenu_page(
-            'gadzila-forms',
+            'bestway-forms',
             'История',
             'История',
             'manage_options',
-            'gadzila-forms-history',
+            'bestway-forms-history',
             [$this, 'history_page']
         );
         
         add_submenu_page(
-            'gadzila-forms',
+            'bestway-forms',
             'Настройки',
             'Настройки',
             'manage_options',
-            'gadzila-forms-settings',
+            'bestway-forms-settings',
             [$this, 'settings_page']
         );
     }
@@ -105,28 +105,40 @@ class BestwayForms_Controller_Admin {
         
         register_setting('bestway_forms_wc', 'bestway_forms_wc_capture_all');
         register_setting('bestway_forms_wc', 'bestway_forms_wc_statuses');
+
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_host');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_port');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_encryption');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_username');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_password');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_from_email');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_from_name');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_notifications_enabled');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_lead_types');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_recipient_emails');
+        register_setting('bestway_forms_smtp', 'bestway_forms_smtp_email_subject');
     }
-    
+        
     public function admin_scripts($hook) {
-        if (strpos($hook, 'gadzila-forms') === false) return;
+        if (strpos($hook, 'bestway-forms') === false) return;
         
         wp_enqueue_script('jquery');
         wp_enqueue_style(
-            'gadzila-forms-admin',
+            'bestway-forms-admin',
             BESTWAY_FORMS_URL . 'assets/css/admin.css',
             [],
             BESTWAY_FORMS_VERSION
         );
         
         wp_enqueue_script(
-            'gadzila-forms-admin',
+            'bestway-forms-admin',
             BESTWAY_FORMS_URL . 'assets/js/admin.js',
             ['jquery'],
             BESTWAY_FORMS_VERSION,
             true
         );
         
-        wp_localize_script('gadzila-forms-admin', 'bestway_forms_admin', [
+        wp_localize_script('bestway-forms-admin', 'bestway_forms_admin', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('bestway_forms_nonce')
         ]);
@@ -211,45 +223,66 @@ class BestwayForms_Controller_Admin {
     }
     
     public function settings_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die('У вас недостаточно прав для доступа к этой странице.');
+        }
+
         $active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
         ?>
-        <div class="wrap gadzila-forms-settings">
+        <div class="wrap bestway-forms-settings">
             <h1>Настройки BestwayForms</h1>
             
             <nav class="nav-tab-wrapper">
-                <a href="#general" class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo admin_url('admin.php?page=bestway-forms-settings&tab=general'); ?>" 
+                class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
                     Общие настройки
                 </a>
-                <a href="#n8n" class="nav-tab <?php echo $active_tab === 'n8n' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo admin_url('admin.php?page=bestway-forms-settings&tab=n8n'); ?>" 
+                class="nav-tab <?php echo $active_tab === 'n8n' ? 'nav-tab-active' : ''; ?>">
                     n8n Интеграция
                 </a>
-                <a href="#ai" class="nav-tab <?php echo $active_tab === 'ai' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo admin_url('admin.php?page=bestway-forms-settings&tab=ai'); ?>" 
+                class="nav-tab <?php echo $active_tab === 'ai' ? 'nav-tab-active' : ''; ?>">
                     AI Менеджер
                 </a>
-                <a href="#woocommerce" class="nav-tab <?php echo $active_tab === 'woocommerce' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo admin_url('admin.php?page=bestway-forms-settings&tab=woocommerce'); ?>" 
+                class="nav-tab <?php echo $active_tab === 'woocommerce' ? 'nav-tab-active' : ''; ?>">
                     WooCommerce
                 </a>
-                <a href="#contacts" class="nav-tab <?php echo $active_tab === 'contacts' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo admin_url('admin.php?page=bestway-forms-settings&tab=smtp'); ?>" 
+                class="nav-tab <?php echo $active_tab === 'smtp' ? 'nav-tab-active' : ''; ?>">
+                    SMTP & Email
+                </a>
+                <a href="<?php echo admin_url('admin.php?page=bestway-forms-settings&tab=contacts'); ?>" 
+                class="nav-tab <?php echo $active_tab === 'contacts' ? 'nav-tab-active' : ''; ?>">
                     Контакты
                 </a>
             </nav>
             
-            <div class="settings-content">
-                <div id="general" class="tab-content" style="<?php echo $active_tab === 'general' ? '' : 'display: none;'; ?>">
-                    <?php BestwayForms_Tab_General_Render::render(); ?>
-                </div>
-                <div id="n8n" class="tab-content" style="<?php echo $active_tab === 'n8n' ? '' : 'display: none;'; ?>">
-                    <?php BestwayForms_Tab_N8N_Render::render(); ?>
-                </div>
-                <div id="ai" class="tab-content" style="<?php echo $active_tab === 'ai' ? '' : 'display: none;'; ?>">
-                    <?php BestwayForms_Tab_AI_Render::render(); ?>
-                </div>
-                <div id="woocommerce" class="tab-content" style="<?php echo $active_tab === 'woocommerce' ? '' : 'display: none;'; ?>">
-                    <?php BestwayForms_Tab_WooCommerce_Render::render(); ?>
-                </div>
-                <div id="contacts" class="tab-content" style="<?php echo $active_tab === 'contacts' ? '' : 'display: none;'; ?>">
-                    <?php BestwayForms_Tab_Contacts_Render::render(); ?>
-                </div>
+            <div class="bestway-settings-content">
+                <?php 
+                switch ($active_tab) {
+                    case 'n8n':
+                        BestwayForms_Tab_N8N_Render::render();
+                        break;
+                    case 'ai':
+                        BestwayForms_Tab_AI_Render::render();
+                        break;
+                    case 'woocommerce':
+                        BestwayForms_Tab_WooCommerce_Render::render();
+                        break;
+                    case 'smtp':
+                        BestwayForms_Tab_SMTP_Render::render();
+                        break;
+                    case 'contacts':
+                        BestwayForms_Tab_Contacts_Render::render();
+                        break;
+                    case 'general':
+                    default:
+                        BestwayForms_Tab_General_Render::render();
+                        break;
+                }
+                ?>
             </div>
         </div>
         <?php
@@ -275,9 +308,9 @@ class BestwayForms_Controller_Admin {
         $result = $forms_model->delete_form($form_id);
         
         if ($result) {
-            wp_redirect(admin_url('admin.php?page=gadzila-forms-list&deleted=1'));
+            wp_redirect(admin_url('admin.php?page=bestway-forms-list&deleted=1'));
         } else {
-            wp_redirect(admin_url('admin.php?page=gadzila-forms-list&error=1'));
+            wp_redirect(admin_url('admin.php?page=bestway-forms-list&error=1'));
         }
         exit;
     }

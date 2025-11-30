@@ -14,6 +14,79 @@
         
         initFormCreation() {
             console.log('BestwayFormsAdmin initialized');
+
+            let currentTemplate = '';
+            let currentFields = {};
+            
+            $('.create-form-btn').on('click', function(e) {
+                e.preventDefault();
+                currentTemplate = $(this).data('template');
+                currentFields = $(this).data('fields');
+                
+                $('#selected-template').text(currentTemplate);
+                
+                var fieldsList = $('#detected-fields');
+                fieldsList.empty();
+                
+                if (currentFields && Object.keys(currentFields).length > 0) {
+                    $.each(currentFields, function(fieldName, fieldConfig) {
+                        var type = fieldConfig.type || 'text';
+                        var required = fieldConfig.required ? ' <span class="required">(обязательное)</span>' : '';
+                        var placeholder = fieldConfig.placeholder ? '<br><small>Placeholder: "' + fieldConfig.placeholder + '"</small>' : '';
+                        
+                        if (fieldConfig.type === 'select' && fieldConfig.options) {
+                            var options = '<br><small>Опции: ' + Object.keys(fieldConfig.options).join(', ') + '</small>';
+                            fieldsList.append('<li><strong>' + fieldName + '</strong> (' + type + ')' + required + placeholder + options + '</li>');
+                        } else {
+                            fieldsList.append('<li><strong>' + fieldName + '</strong> (' + type + ')' + required + placeholder + '</li>');
+                        }
+                    });
+                    $('#no-fields').hide();
+                    fieldsList.show();
+                } else {
+                    fieldsList.hide();
+                    $('#no-fields').show();
+                }
+                
+                $('#create-form-modal').show();
+            });
+            
+            $('#confirm-create-btn').on('click', function() {
+                const $btn = $(this);
+                $btn.prop('disabled', true).text('Создание...');
+                
+                $.ajax({
+                    url: bestway_forms_admin.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'bestway_create_form',
+                        template: currentTemplate,
+                        nonce: bestway_forms_admin.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = bestway_forms_admin.ajax_url.replace('admin-ajax.php', 'admin.php?page=bestway-forms-list');
+                        } else {
+                            alert('Ошибка создания формы: ' + response.data);
+                            $btn.prop('disabled', false).text('Создать форму');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Ошибка сети: ' + error);
+                        $btn.prop('disabled', false).text('Создать форму');
+                    }
+                });
+            });
+            
+            $('#cancel-create-btn').on('click', function() {
+                $('#create-form-modal').hide();
+            });
+            
+            $('#create-form-modal').on('click', function(e) {
+                if (e.target === this) {
+                    $(this).hide();
+                }
+            });
         }
         
         initCopyShortcode() {
@@ -40,36 +113,10 @@
         }
         
         initSettingsTabs() {
-            $('.gadzila-forms-settings .settings-content > .tab-content').hide();
-            $('.gadzila-forms-settings .settings-content > .tab-content:first').show();
-            
-            $('.gadzila-forms-settings .nav-tab').on('click', function(e) {
-                e.preventDefault();
-                const $tab = $(this);
-                const target = $tab.attr('href');
-                
-                if (!target || target === '#') return;
-
-                $('.nav-tab').removeClass('nav-tab-active');
-                $('.settings-content > .tab-content').hide();
-
-                $tab.addClass('nav-tab-active');
-                $(target).show();
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                urlParams.set('tab', target.substring(1));
-                window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
-            });
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const activeTab = urlParams.get('tab');
-            if (activeTab) {
-                $(`.nav-tab[href="#${activeTab}"]`).click();
-            }
+            console.log('Bestway settings tabs initialized');
         }
     }
 
-    // Инициализация когда DOM готов
     $(document).ready(() => {
         new BestwayFormsAdmin();
     });

@@ -1,9 +1,7 @@
 <?php
-if (!defined('ABSPATH'))
-    exit;
+if (!defined('ABSPATH')) exit;
 
-class BestwayForms_Model_WooCommerce extends BestwayForms_Model
-{
+class BestwayForms_Model_WooCommerce extends BestwayForms_Model {
     protected $table_name = 'gdzl_wc_leads';
 
     public function get_all_wc_leads($page = 1, $per_page = 50) {
@@ -18,15 +16,13 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         ));
     }
 
-    public function get_orders_count()
-    {
+    public function get_orders_count() {
         global $wpdb;
         $count = $wpdb->get_var("SELECT COUNT(*) FROM {$this->get_table_name()}");
         return $count ?: 0;
     }
 
-    private function extract_customer_data($order)
-    {
+    private function extract_customer_data($order) {
         return [
             'first_name' => $order->get_billing_first_name(),
             'last_name' => $order->get_billing_last_name(),
@@ -43,8 +39,7 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         ];
     }
 
-    private function extract_order_data($order)
-    {
+    private function extract_order_data($order) {
         return [
             'order_id' => $order->get_id(),
             'order_number' => $order->get_order_number(),
@@ -58,8 +53,7 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         ];
     }
 
-    private function extract_order_items($order)
-    {
+    private function extract_order_items($order) {
         $items = [];
         foreach ($order->get_items() as $item_id => $item) {
             $product = $item->get_product();
@@ -74,8 +68,7 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         return $items;
     }
 
-    public function process_order($order_id)
-    {
+    public function process_order($order_id) {
         global $wpdb;
 
         $order = wc_get_order($order_id);
@@ -105,6 +98,9 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
 
         if ($result) {
             $wc_lead_id = $wpdb->insert_id;
+            
+            $combined_data = array_merge($customer_data, $order_data);
+            do_action('bestway_forms_lead_created', $combined_data, true);
 
             $n8n_result = $this->send_to_n8n($wc_lead_id, $order_id, $customer_data, $order_data);
             $ai_result = $this->process_with_ai($wc_lead_id, $order_id, $customer_data, $order_data);
@@ -135,8 +131,7 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         return false;
     }
 
-    private function send_to_n8n($wc_lead_id, $order_id, $customer_data, $order_data)
-    {
+    private function send_to_n8n($wc_lead_id, $order_id, $customer_data, $order_data) {
         if (!get_option('bestway_forms_n8n_enabled'))
             return null;
 
@@ -183,8 +178,7 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         return null;
     }
 
-    private function process_with_ai($wc_lead_id, $order_id, $customer_data, $order_data)
-    {
+    private function process_with_ai($wc_lead_id, $order_id, $customer_data, $order_data) {
         if (!get_option('bestway_forms_ai_enabled'))
             return null;
 
@@ -209,7 +203,7 @@ class BestwayForms_Model_WooCommerce extends BestwayForms_Model
         return $result;
     }
 
-    public function update_order_status($order_id, $status)
-    {
+    public function update_order_status($order_id, $status) {
+        // на будущее логика обновления статуса ::wait
     }
 }
