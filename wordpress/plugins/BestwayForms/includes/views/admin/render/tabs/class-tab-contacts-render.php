@@ -7,7 +7,7 @@ class BestwayForms_Tab_Contacts_Render {
         ?>
         <div class="card">
             <h2>Контакты и поддержка</h2>
-            <p>Свяжитесь с автором плагина для получения поддержки, предложений или сотрудничества.</p>
+            <p>Связаться с автором плагина для получения поддержки, предложений или сотрудничества.</p>
         </div>
         
         <div class="card">
@@ -59,7 +59,7 @@ class BestwayForms_Tab_Contacts_Render {
                         GitHub
                     </th>
                     <td>
-                        <a href="https://github.com/dartanianfactory/Bestway_Forms_Plugin_Wordpress.git" target="_blank" class="contact-link">
+                        <a href="https://github.com/dartanianfactory/Bestway_Forms_Plugin_Wordpress" target="_blank" class="contact-link">
                             GitHub Repository
                         </a>
                         <p class="description">Исходный код, issues и contributions</p>
