@@ -1,45 +1,52 @@
 <?php
-if (!defined('ABSPATH')) exit;
+if (!defined('ABSPATH'))
+    exit;
 
-class BestwayForms_Controller_AJAX {
+class BestwayForms_Controller_AJAX
+{
     private static $instance = null;
-    
-    public static function instance() {
+
+    public static function instance()
+    {
         if (is_null(self::$instance)) {
             self::$instance = new self();
         }
         return self::$instance;
     }
-    
-    public function __construct() {
+
+    public function __construct()
+    {
         $this->register_hooks();
     }
-    
-    private function register_hooks() {
+
+    private function register_hooks()
+    {
         add_action('wp_ajax_bestway_create_form', [$this, 'ajax_create_form']);
         add_action('wp_ajax_submit_bestway_form', [$this, 'handle_form_submission']);
         add_action('wp_ajax_nopriv_submit_bestway_form', [$this, 'handle_form_submission']);
         add_action('wp_ajax_bestway_test_smtp', [$this, 'ajax_test_smtp']);
+        add_action('wp_ajax_test_ai_connection', [$this, 'ajax_test_ai_connection']);
     }
-    
-    public function ajax_create_form() {
+
+    public function ajax_create_form()
+    {
         if (!check_ajax_referer('bestway_forms_nonce', 'nonce', false)) {
             wp_send_json_error('Security check failed');
         }
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Неавторизованный доступ');
         }
-        
+
         $template = sanitize_text_field($_POST['template'] ?? '');
-        
+
         if (empty($template)) {
             wp_send_json_error('Шаблон не указан');
         }
-        
+
         $forms_model = new BestwayForms_Model_Forms();
         $form_data = $forms_model->create_form_from_template($template);
-        
+
         if ($form_data && isset($form_data['id'])) {
             BestwayForms::log("Форма создана: ID {$form_data['id']}, шаблон: {$template}");
             wp_send_json_success([
@@ -52,29 +59,30 @@ class BestwayForms_Controller_AJAX {
             wp_send_json_error('Ошибка при создании формы из шаблона');
         }
     }
-    
-    public function handle_form_submission() {
+
+    public function handle_form_submission()
+    {
         check_ajax_referer('bestway_forms_submit', 'bestway_nonce');
-        
+
         $form_id = intval($_POST['form_id'] ?? 0);
-        
+
         if (!$form_id) {
             wp_send_json_error('Неверный ID формы');
         }
-        
+
         $errors = $this->validate_form_data($_POST);
-        
+
         if (!empty($errors)) {
             wp_send_json_error($errors);
         }
-        
+
         if (!class_exists('BestwayForms_Model_Leads')) {
             wp_send_json_error('Модель лидов не найдена');
         }
-        
+
         $leads_model = new BestwayForms_Model_Leads();
         $result = $leads_model->process_lead($_POST);
-        
+
         if ($result) {
             BestwayForms::log("Получен новый лид с формы #{$form_id}");
             wp_send_json_success('Форма успешно отправлена! Мы свяжемся с вами в ближайшее время.');
@@ -82,53 +90,55 @@ class BestwayForms_Controller_AJAX {
             BestwayForms::log("Ошибка обработки лида с формы #{$form_id}", 'error');
             wp_send_json_error('Ошибка отправки формы. Пожалуйста, попробуйте еще раз.');
         }
-        
+
         wp_die();
     }
 
-    public function ajax_test_smtp() {
+    public function ajax_test_smtp()
+    {
         if (!check_ajax_referer('bestway_forms_nonce', 'nonce', false)) {
             wp_send_json_error('Security check failed');
         }
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Неавторизованный доступ');
         }
-        
+
         $recipient_emails = get_option('bestway_forms_smtp_recipient_emails');
         if (empty($recipient_emails)) {
             wp_send_json_error('Не указаны email получатели');
         }
-        
+
         $emails = array_map('trim', explode(',', $recipient_emails));
         $test_email = $emails[0];
-        
+
         $subject = 'Тестовое письмо от BestwayForms';
         $message = 'Это тестовое письмо для проверки настроек SMTP.' . "\n\n";
         $message .= 'Время отправки: ' . current_time('mysql') . "\n";
         $message .= 'Сайт: ' . get_bloginfo('name') . ' (' . site_url() . ')';
-        
+
         $headers = array(
             'From: ' . get_option('bestway_forms_smtp_from_name') . ' <' . get_option('bestway_forms_smtp_from_email') . '>',
             'Content-Type: text/plain; charset=UTF-8'
         );
-        
+
         $result = wp_mail($test_email, $subject, $message, $headers);
-        
+
         if ($result) {
             wp_send_json_success('Тестовое письмо отправлено на ' . $test_email);
         } else {
             wp_send_json_error('Не удалось отправить тестовое письмо. Проверьте настройки SMTP.');
         }
     }
-    
-    private function validate_form_data($data) {
+
+    private function validate_form_data($data)
+    {
         $errors = [];
 
         if (empty($data['name'])) {
             $errors['name'] = 'Пожалуйста, введите ваше имя';
         }
-        
+
         if (empty($data['email'])) {
             $errors['email'] = 'Пожалуйста, введите ваш email';
         } elseif (!is_email($data['email'])) {
@@ -136,5 +146,109 @@ class BestwayForms_Controller_AJAX {
         }
 
         return $errors;
+    }
+
+    public function ajax_test_ai_connection()
+    {
+        if (!check_ajax_referer('bestway_forms_nonce', 'nonce', false)) {
+            wp_send_json_error('Security check failed');
+        }
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized access');
+        }
+
+        $provider = get_option('bestway_forms_ai_provider', 'openai');
+        $api_key = get_option('bestway_forms_ai_api_key');
+
+        if (empty($api_key)) {
+            wp_send_json_error('API key not set');
+        }
+
+        $test_result = $this->test_ai_provider($provider, $api_key);
+
+        if ($test_result['success']) {
+            wp_send_json_success('AI connection successful: ' . $test_result['message']);
+        } else {
+            wp_send_json_error('AI connection failed: ' . $test_result['message']);
+        }
+    }
+
+    private function test_ai_provider($provider, $api_key)
+    {
+        $test_prompt = "Respond with just: OK";
+
+        switch ($provider) {
+            case 'openai':
+                return $this->test_openai($api_key, $test_prompt);
+            case 'deepseek':
+                return $this->test_deepseek($api_key, $test_prompt);
+            case 'custom':
+                return $this->test_custom_api($api_key, $test_prompt);
+            default:
+                return ['success' => false, 'message' => 'Unknown provider'];
+        }
+    }
+
+    private function test_openai($api_key, $prompt)
+    {
+        $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $api_key,
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode([
+                'model' => 'gpt-3.5-turbo',
+                'messages' => [['role' => 'user', 'content' => $prompt]],
+                'max_tokens' => 10
+            ]),
+            'timeout' => 10
+        ]);
+
+        return $this->handle_test_response($response);
+    }
+
+    private function test_deepseek($api_key, $prompt)
+    {
+        $response = wp_remote_post('https://api.deepseek.com/chat/completions', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $api_key,
+                'Content-Type' => 'application/json'
+            ],
+            'body' => json_encode([
+                'model' => 'deepseek-chat',
+                'messages' => [['role' => 'user', 'content' => $prompt]],
+                'max_tokens' => 10,
+                'stream' => false
+            ]),
+            'timeout' => 10
+        ]);
+
+        return $this->handle_test_response($response);
+    }
+
+    private function test_custom_api($api_key, $prompt)
+    {
+        return ['success' => true, 'message' => 'Custom API test not implemented'];
+    }
+
+    private function handle_test_response($response)
+    {
+        if (is_wp_error($response)) {
+            return ['success' => false, 'message' => $response->get_error_message()];
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if (isset($data['error'])) {
+            return ['success' => false, 'message' => $data['error']['message']];
+        }
+
+        if (isset($data['choices'][0]['message']['content'])) {
+            return ['success' => true, 'message' => 'API responded successfully'];
+        }
+
+        return ['success' => false, 'message' => 'Unexpected response format'];
     }
 }

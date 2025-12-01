@@ -102,6 +102,9 @@ class BestwayForms_Controller_Admin {
         register_setting('bestway_forms_ai', 'bestway_forms_ai_system_prompt');
         register_setting('bestway_forms_ai', 'bestway_forms_ai_analysis_prompt');
         register_setting('bestway_forms_ai', 'bestway_forms_ai_response_prompt');
+        register_setting('bestway_forms_ai', 'bestway_forms_ai_auth_type');
+        register_setting('bestway_forms_ai', 'bestway_forms_ai_custom_model');
+        register_setting('bestway_forms_ai', 'bestway_forms_ai_custom_params');
         
         register_setting('bestway_forms_wc', 'bestway_forms_wc_capture_all');
         register_setting('bestway_forms_wc', 'bestway_forms_wc_statuses');

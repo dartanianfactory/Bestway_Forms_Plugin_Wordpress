@@ -27,10 +27,16 @@ class BestwayForms_Model_Settings extends BestwayForms_Model {
     
     public function get_ai_providers() {
         return [
-            'openai' => 'OpenAI GPT',
-            'claude' => 'Anthropic Claude',
-            'gemini' => 'Google Gemini',
+            'openai' => 'OpenAI ChatGPT',
+            'deepseek' => 'DeepSeek',
             'custom' => 'Custom API'
+        ];
+    }
+    
+    public function get_auth_types() {
+        return [
+            'bearer' => 'Bearer Token',
+            'api_key' => 'API Key Header'
         ];
     }
     
