@@ -3,16 +3,16 @@
  * Plugin Name: Bestway Forms
  * Plugin URI: https://github.com/dartanianfactory/Bestway_Forms_Plugin_Wordpress.git
  * Description: Advanced form management system with n8n, AI and WooCommerce integrations
- * Version: 2.3
+ * Version: 2.4.2
  * Author: Roman Agafonov
  * Author URI: https://t.me/boontar_mini
  * Text Domain: bestway-forms
- * Domain Path: /languages
+ * Domain Path: /
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('BESTWAY_FORMS_VERSION', '2.4.1');
+define('BESTWAY_FORMS_VERSION', '2.4.2');
 define('BESTWAY_FORMS_PATH', plugin_dir_path(__FILE__));
 define('BESTWAY_FORMS_URL', plugin_dir_url(__FILE__));
 
